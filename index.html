@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taller Da Vinci</title>
+<meta name="description" content="Método Da Vinci y prototipado rápido — Innovación y Creatividad">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;700&display=swap">
+<style>
+/* Layout: cuaderno de taller — hoja de papel gris-verdoso con tinta ferrogálica, cinta masking amarilla como resaltado y azul de plano para lo "construido". Columna de lectura + bloques de ejercicio. */
+:root{
+  --paper:#EDEEE7;
+  --sheet:#F7F7F2;
+  --ink:#2A2421;
+  --ink-soft:#5A504A;
+  --rule:#CFCFC4;
+  --tape:#E8C355;
+  --tape-ink:#2A2421;
+  --blue:#2D4C9E;
+  --blue-soft:#DCE3F2;
+  --chalk:#9C3B26;
+  --f-display:'IM Fell English', Georgia, 'Times New Roman', serif;
+  --f-body:'Atkinson Hyperlegible', 'Trebuchet MS', Verdana, sans-serif;
+  --f-hand:'Caveat', 'Brush Script MT', cursive;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#1C1A18; --sheet:#25221F; --ink:#ECE6DC; --ink-soft:#B9AFA3; --rule:#3E3934;
+    --tape:#E3BD4E; --tape-ink:#1C1A18; --blue:#9DB3F0; --blue-soft:#27304A; --chalk:#E08A70;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#1C1A18; --sheet:#25221F; --ink:#ECE6DC; --ink-soft:#B9AFA3; --rule:#3E3934;
+  --tape:#E3BD4E; --tape-ink:#1C1A18; --blue:#9DB3F0; --blue-soft:#27304A; --chalk:#E08A70;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:var(--f-body); font-size:1.125rem; line-height:1.6;
+  background-image:radial-gradient(var(--rule) 1px, transparent 1.2px);
+  background-size:28px 28px;
+}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:clamp(16px,4vw,40px)}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;line-height:1.1;text-wrap:balance;margin:0}
+h2{font-size:clamp(2.1rem,5vw,3.4rem)}
+h3{font-size:1.6rem}
+p{margin:0}
+a{color:var(--blue)}
+:focus-visible{outline:3px solid var(--blue);outline-offset:3px;border-radius:4px}
+.eyebrow{font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--ink-soft)}
+.hand{font-family:var(--f-hand);font-size:1.6rem;line-height:1.15;color:var(--chalk)}
+.tape{background:linear-gradient(transparent 12%, var(--tape) 12%, var(--tape) 88%, transparent 88%);color:var(--tape-ink);padding:0 .2em}
+.lead{font-size:1.3rem;max-width:62ch;color:var(--ink-soft)}
+.prose{max-width:66ch;display:grid;gap:1rem}
+
+/* nav */
+nav.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--paper);border-bottom:1px solid var(--rule)}
+nav.top .wrap{display:flex;align-items:center;gap:.5rem;padding-block:.6rem;overflow-x:auto;scrollbar-width:none}
+nav.top a{flex:none;text-decoration:none;color:var(--ink);font-weight:700;font-size:.9rem;padding:.35rem .8rem;border-radius:999px;border:1px solid var(--rule);background:var(--sheet)}
+nav.top a:hover{border-color:var(--ink)}
+nav.top a.ex{background:var(--tape);color:var(--tape-ink);border-color:var(--tape)}
+nav.top .sp{flex:1}
+#themeBtn{flex:none;font:inherit;font-size:.85rem;background:none;border:1px solid var(--rule);color:var(--ink);border-radius:999px;padding:.35rem .8rem;cursor:pointer}
+
+section{padding-block:clamp(3rem,8vw,6rem);border-bottom:1px dashed var(--rule)}
+.sec-head{display:grid;gap:.6rem;margin-bottom:2.2rem}
+
+/* hero */
+.hero{padding-block:clamp(2.5rem,7vw,5rem) clamp(2.5rem,6vw,4rem)}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:clamp(1.5rem,4vw,3rem);align-items:center}
+.hero h1{font-size:clamp(2.8rem,7.5vw,5.6rem)}
+.hero h1 em{font-style:italic;color:var(--blue)}
+.mirror{display:inline-block;transform:scaleX(-1);font-family:var(--f-hand);font-size:clamp(1.6rem,3.5vw,2.4rem);color:var(--chalk);opacity:.85}
+.hero-copy{display:grid;gap:1.2rem}
+.meta{display:flex;flex-wrap:wrap;gap:.5rem;font-size:.9rem}
+.meta span{border:1px solid var(--rule);background:var(--sheet);padding:.25rem .7rem;border-radius:999px}
+.hero svg{width:100%;height:auto;max-width:440px;justify-self:center}
+.hero svg .ln{fill:none;stroke:var(--ink);stroke-width:1.6}
+.hero svg .lt{fill:none;stroke:var(--ink-soft);stroke-width:1;stroke-dasharray:4 5}
+.hero svg .bl{fill:none;stroke:var(--blue);stroke-width:2.2}
+.hero svg .tp{fill:var(--tape);opacity:.85}
+.hero svg text{font-family:var(--f-hand);font-size:20px;fill:var(--chalk)}
+
+/* intro facts */
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;margin-top:2rem}
+.fact{background:var(--sheet);border:1px solid var(--rule);border-radius:var(--r);padding:1.2rem 1.3rem;display:grid;gap:.4rem;align-content:start}
+.fact b{font-family:var(--f-display);font-weight:400;font-size:2.2rem;line-height:1}
+
+/* principios */
+.principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:1rem}
+.pr{background:var(--sheet);border:1px solid var(--rule);border-radius:var(--r);padding:1.4rem;display:grid;gap:.7rem;align-content:start;position:relative}
+.pr .num{font-family:var(--f-display);font-size:1.1rem;color:var(--chalk)}
+.pr h3{font-size:1.9rem}
+.pr .es{font-weight:700;margin-top:-.4rem}
+.pr .q{font-family:var(--f-hand);font-size:1.45rem;line-height:1.2;color:var(--blue)}
+.pr .try{font-size:.98rem;border-top:1px dashed var(--rule);padding-top:.7rem;color:var(--ink-soft)}
+.pr .try strong{color:var(--ink)}
+.pr.wide{background:var(--ink);color:var(--sheet);border-color:var(--ink)}
+.pr.wide .try,.pr.wide .try strong{color:var(--sheet)}
+.pr.wide .q{color:var(--tape)}
+.pr.wide .num{color:var(--tape)}
+.pr.wide .try{border-color:rgba(255,255,255,.25)}
+:root[data-theme="dark"] .pr.wide .try{border-color:var(--rule)}
+
+/* prototipado */
+.proto-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(1.5rem,4vw,3rem);align-items:center}
+.cycle{width:100%;max-width:420px;justify-self:center}
+.cycle circle.o{fill:none;stroke:var(--rule);stroke-width:2;stroke-dasharray:6 7}
+.cycle .node{fill:var(--sheet);stroke:var(--ink);stroke-width:1.6}
+.cycle .node.hot{fill:var(--tape);stroke:var(--tape)}
+.cycle text{font-family:var(--f-body);font-size:15px;font-weight:700;fill:var(--ink);text-anchor:middle}
+.cycle text.s{font-weight:400;font-size:12.5px;fill:var(--ink-soft)}
+.cycle text.hot{fill:var(--tape-ink)}
+.cycle path{fill:none;stroke:var(--blue);stroke-width:2.2}
+.cycle .arrow{fill:var(--blue);stroke:none}
+.cycle text.c{font-family:var(--f-hand);font-size:26px;font-weight:500;fill:var(--chalk)}
+
+.fid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin-top:3rem;border:1px solid var(--rule);border-radius:var(--r);overflow:hidden;background:var(--sheet)}
+.fid > div{padding:1.4rem;display:grid;gap:.5rem;align-content:start;border-left:1px solid var(--rule)}
+.fid > div:first-child{border-left:none;background:var(--blue-soft)}
+.fid .lvl{display:flex;gap:4px}
+.fid .lvl i{width:22px;height:8px;border-radius:2px;background:var(--rule)}
+.fid .lvl i.on{background:var(--blue)}
+.fid ul{margin:0;padding-left:1.1rem;font-size:.98rem;color:var(--ink-soft)}
+.fid .tag{font-size:.8rem;font-weight:700;color:var(--blue)}
+
+.techs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:1rem;margin-top:1.4rem}
+.tech{border:1.5px solid var(--ink);border-radius:var(--r);padding:1.1rem 1.2rem;display:grid;gap:.35rem;align-content:start;background:var(--paper)}
+.tech h3{font-size:1.35rem;font-family:var(--f-body);font-weight:700}
+.tech p{font-size:.98rem;color:var(--ink-soft)}
+
+.rules{display:grid;gap:.8rem;margin-top:1.4rem;counter-reset:r}
+.rules li{list-style:none;display:grid;grid-template-columns:auto minmax(0,1fr);gap:1rem;align-items:baseline;padding:.9rem 0;border-bottom:1px solid var(--rule)}
+.rules{padding:0}
+.rules b{font-family:var(--f-display);font-weight:400;font-size:1.5rem}
+.rules span{color:var(--ink-soft)}
+.rules em{font-style:normal;font-family:var(--f-hand);font-size:1.6rem;color:var(--chalk);min-width:2.2rem}
+
+/* puente */
+.bridge{overflow-x:auto;margin-top:1rem;border:1px solid var(--rule);border-radius:var(--r);background:var(--sheet)}
+.bridge table{border-collapse:collapse;width:100%;min-width:620px}
+.bridge th,.bridge td{text-align:left;padding:.85rem 1.1rem;border-bottom:1px solid var(--rule);vertical-align:top}
+.bridge th{font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
+.bridge td:first-child{font-family:var(--f-display);font-size:1.3rem;white-space:nowrap}
+.bridge tr:last-child td{border-bottom:none}
+.quote-box{margin-top:2.2rem;display:grid;grid-template-columns:auto minmax(0,1fr);gap:1.2rem;align-items:center;padding:1.4rem;border-radius:var(--r);background:var(--tape);color:var(--tape-ink)}
+.quote-box .big{font-family:var(--f-display);font-size:clamp(1.5rem,3.2vw,2.1rem);line-height:1.2}
+.quote-box svg{width:64px;height:64px}
+.quote-box svg *{fill:none;stroke:var(--tape-ink);stroke-width:2}
+
+/* ejercicio */
+#ejercicio{background:var(--sheet);border-top:1px solid var(--rule)}
+.ex-head{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:2rem;align-items:start;margin-bottom:2.4rem}
+.brief{display:grid;gap:.8rem}
+.kit{border:1.5px dashed var(--ink-soft);border-radius:var(--r);padding:1.1rem 1.2rem;display:grid;gap:.5rem;background:var(--paper)}
+.kit ul{margin:0;padding-left:1.1rem}
+
+.timer{position:sticky;top:calc(env(safe-area-inset-top,0px) + 58px);z-index:10;display:flex;flex-wrap:wrap;align-items:center;gap:.8rem 1.2rem;background:var(--ink);color:var(--sheet);border-radius:var(--r);padding:.8rem 1.1rem;margin-bottom:2rem}
+.timer .clock{font-variant-numeric:tabular-nums;font-size:2.2rem;font-weight:700;letter-spacing:.02em;min-width:5.2ch}
+.timer .lbl{font-size:.95rem;opacity:.85;flex:1;min-width:10rem}
+.timer button{font:inherit;font-size:.9rem;font-weight:700;border:none;border-radius:999px;padding:.45rem .95rem;cursor:pointer;background:var(--tape);color:var(--tape-ink)}
+.timer button.ghost{background:transparent;color:var(--sheet);border:1px solid rgba(255,255,255,.35)}
+:root[data-theme="dark"] .timer button.ghost{border-color:var(--rule)}
+.timer.done{background:var(--chalk)}
+.timer .bar{flex-basis:100%;height:4px;background:rgba(255,255,255,.18);border-radius:2px;overflow:hidden}
+.timer .bar i{display:block;height:100%;width:0;background:var(--tape);transition:width .9s linear}
+
+.steps{display:grid;gap:1.1rem;padding:0;margin:0}
+.step{list-style:none;display:grid;grid-template-columns:auto minmax(0,1fr);gap:1.2rem;padding:1.3rem;border:1px solid var(--rule);border-radius:var(--r);background:var(--paper)}
+.step .n{width:3rem;height:3rem;border-radius:50%;display:grid;place-items:center;font-family:var(--f-display);font-size:1.5rem;border:1.6px solid var(--ink)}
+.step .body{display:grid;gap:.55rem;min-width:0}
+.step .row{display:flex;flex-wrap:wrap;align-items:baseline;gap:.4rem 1rem}
+.step .row h3{font-size:1.55rem}
+.step .it{font-family:var(--f-hand);font-size:1.4rem;color:var(--chalk)}
+.step .min{margin-left:auto;font-size:.85rem;font-weight:700;border:1px solid var(--ink);border-radius:999px;padding:.25rem .75rem;background:none;color:var(--ink);cursor:pointer;font-family:var(--f-body)}
+.step .min:hover{background:var(--ink);color:var(--paper)}
+.step ul{margin:0;padding-left:1.1rem;color:var(--ink-soft)}
+.step .out{font-size:.95rem}
+.step .out b{color:var(--blue)}
+.step.build{border:2px solid var(--blue);background:var(--blue-soft)}
+.step.build .n{background:var(--blue);color:var(--sheet);border-color:var(--blue)}
+:root[data-theme="dark"] .step.build .n{color:var(--paper)}
+
+.wordbox{display:flex;flex-wrap:wrap;align-items:center;gap:.8rem;margin-top:.3rem}
+.wordbox output{font-family:var(--f-display);font-size:2rem;min-width:8ch;padding:.1rem .8rem;background:var(--tape);color:var(--tape-ink);border-radius:6px}
+.btn{font:inherit;font-size:.95rem;font-weight:700;padding:.55rem 1.05rem;border-radius:999px;border:1.5px solid var(--ink);background:var(--ink);color:var(--paper);cursor:pointer}
+.btn.alt{background:transparent;color:var(--ink)}
+
+/* ficha */
+.ficha{margin-top:3rem;display:grid;gap:1.4rem;padding:clamp(1.2rem,3vw,2rem);border:1.5px solid var(--ink);border-radius:var(--r);background:var(--paper)}
+.ficha .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem 1.4rem}
+.field{display:grid;gap:.35rem;min-width:0}
+.field.full{grid-column:1/-1}
+label{font-weight:700;font-size:.95rem}
+.hint{font-size:.85rem;color:var(--ink-soft);font-weight:400}
+input[type=text],textarea{font:inherit;font-size:1rem;width:100%;padding:.6rem .75rem;border:1px solid var(--rule);border-radius:8px;background:var(--sheet);color:var(--ink)}
+textarea{min-height:5.5rem;resize:vertical}
+input:focus,textarea:focus{border-color:var(--blue);outline:2px solid var(--blue);outline-offset:0}
+fieldset{border:1px dashed var(--chalk);border-radius:var(--r);padding:1rem 1.1rem;margin:0;display:grid;gap:.6rem;background:var(--sheet)}
+legend{font-weight:700;padding:0 .4rem;color:var(--chalk)}
+.radios{display:flex;flex-wrap:wrap;gap:.5rem 1.4rem}
+.radios label{font-weight:400;display:flex;gap:.45rem;align-items:center}
+.actions{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center}
+.status{font-size:.9rem;color:var(--blue);font-weight:700}
+#fichaOut{display:none}
+#fichaOut.show{display:block;min-height:10rem;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85rem}
+
+.rubric{overflow-x:auto;margin-top:2.4rem;border:1px solid var(--rule);border-radius:var(--r);background:var(--paper)}
+.rubric table{border-collapse:collapse;width:100%;min-width:560px}
+.rubric th,.rubric td{text-align:left;padding:.75rem 1rem;border-bottom:1px solid var(--rule);vertical-align:top;font-size:.98rem}
+.rubric th{font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
+.rubric td.pts{font-variant-numeric:tabular-nums;font-weight:700;text-align:right;white-space:nowrap}
+.rubric tr:last-child td{border-bottom:none;font-weight:700}
+
+footer{padding-block:2.5rem 3rem;font-size:.9rem;color:var(--ink-soft)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:.5rem 2rem;justify-content:space-between}
+
+@media (max-width:820px){
+  .hero-grid,.proto-top,.ex-head{grid-template-columns:minmax(0,1fr)}
+  .hero svg{max-width:320px}
+  .facts{grid-template-columns:minmax(0,1fr)}
+  .fid{grid-template-columns:minmax(0,1fr)}
+  .fid > div{border-left:none;border-top:1px solid var(--rule)}
+  .fid > div:first-child{border-top:none}
+  .ficha .grid2{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:520px){
+  body{font-size:1.05rem}
+  .step{grid-template-columns:minmax(0,1fr)}
+  .step .min{margin-left:0}
+  .quote-box{grid-template-columns:minmax(0,1fr)}
+  .timer .clock{font-size:1.8rem}
+}
+</style>
+</head>
+<body>
+
+
+<nav class="top" aria-label="Secciones">
+  <div class="wrap">
+    <a href="#leonardo">Leonardo</a>
+    <a href="#principios">7 principios</a>
+    <a href="#prototipado">Prototipado rápido</a>
+    <a href="#puente">Juntos</a>
+    <a href="#ejercicio" class="ex">Ejercicio</a>
+    <span class="sp"></span>
+    <button id="themeBtn" type="button" aria-label="Cambiar tema claro u oscuro">◐ Tema</button>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow">Innovación y Creatividad · Sesión de taller</p>
+      <h1>Pensar como Leonardo, <em>construir para aprender</em></h1>
+      <p class="lead">El método Da Vinci te entrena para observar y hacer mejores preguntas. El prototipado rápido convierte esas preguntas en algo que puedes tocar, probar y mejorar hoy mismo.</p>
+      <span class="mirror" aria-label="Saper vedere, escrito en espejo como en los cuadernos de Leonardo">saper vedere</span>
+      <div class="meta"><span>Teoría ≈ 40 min</span><span>Ejercicio individual ≈ 70 min</span><span>Papel, cartón y cinta</span></div>
+    </div>
+    <svg viewBox="0 0 440 440" role="img" aria-label="Boceto de cuaderno: un círculo y un cuadrado con líneas de construcción, un engrane y una nota a mano">
+      <rect class="tp" x="150" y="18" width="120" height="26" transform="rotate(-4 210 31)"/>
+      <line class="lt" x1="20" y1="220" x2="420" y2="220"/>
+      <line class="lt" x1="220" y1="20" x2="220" y2="420"/>
+      <line class="lt" x1="60" y1="60" x2="380" y2="380"/>
+      <line class="lt" x1="380" y1="60" x2="60" y2="380"/>
+      <circle class="ln" cx="220" cy="220" r="160"/>
+      <rect class="ln" x="88" y="110" width="264" height="264"/>
+      <circle class="lt" cx="220" cy="220" r="96"/>
+      <g transform="translate(300 330)">
+        <circle class="bl" r="34"/>
+        <circle class="bl" r="10"/>
+        <path class="bl" d="M0-46v12M0 34v12M-46 0h12M34 0h12M-32-32l8 8M24 24l8 8M-32 32l8-8M24-24l8-8"/>
+      </g>
+      <path class="bl" d="M150 200c20-40 60-54 70-54s50 14 70 54" />
+      <path class="bl" d="M150 200l-30 10M290 200l30 10"/>
+      <text x="40" y="416">¿y si lo pruebo hoy?</text>
+    </svg>
+  </div>
+</header>
+
+<main>
+<section id="leonardo">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Contexto</p>
+      <h2>¿Por qué Leonardo?</h2>
+    </div>
+    <div class="prose">
+      <p>Leonardo da Vinci (1452–1519) fue pintor, ingeniero, anatomista e inventor. Lo que más nos interesa de él para esta clase no son sus cuadros terminados, sino sus <span class="tape">cuadernos</span>: miles de páginas con bocetos de máquinas, estudios del cuerpo, del agua y del vuelo de las aves, notas escritas en espejo y preguntas sin resolver.</p>
+      <p>Muchas de sus máquinas nunca se construyeron. Sus cuadernos eran un espacio para pensar con la mano: dibujar una idea, detectar el error y volver a dibujarla. Eso es, en esencia, prototipar.</p>
+      <p>En 1998 el autor Michael J. Gelb estudió la vida y los cuadernos de Leonardo y los resumió en siete principios en su libro <i>How to Think Like Leonardo da Vinci</i>. A eso le llamamos aquí <b>método Da Vinci</b>.</p>
+    </div>
+    <div class="facts">
+      <div class="fact"><b>7</b><p>principios, con nombre en italiano, para entrenar tu forma de pensar.</p></div>
+      <div class="fact"><b>Mano + ojo</b><p>Leonardo pensaba dibujando. Hoy vas a pensar dibujando y construyendo.</p></div>
+      <div class="fact"><b>Error = dato</b><p>Un boceto fallido le decía qué cambiar. Un prototipo fallido te dice lo mismo.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="principios">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Método Da Vinci</p>
+      <h2>Los siete principios</h2>
+      <p class="lead">Cada principio trae una pregunta para hacerte y una forma de practicarlo en tu proyecto.</p>
+    </div>
+    <div class="principles">
+      <article class="pr">
+        <span class="num">I</span>
+        <h3>Curiosità</h3>
+        <p class="es">Curiosidad insaciable</p>
+        <p>Acercarte a todo con ganas de entenderlo y no quedarte con la primera respuesta.</p>
+        <p class="q">¿Por qué funciona así? ¿Y si no tuviera que ser así?</p>
+        <p class="try"><strong>En tu proyecto:</strong> escribe preguntas antes de buscar soluciones.</p>
+      </article>
+      <article class="pr">
+        <span class="num">II</span>
+        <h3>Dimostrazione</h3>
+        <p class="es">Aprender de la experiencia</p>
+        <p>Poner a prueba lo que crees saber, con persistencia y disposición a equivocarte.</p>
+        <p class="q">¿Cómo lo compruebo en lugar de suponerlo?</p>
+        <p class="try"><strong>En tu proyecto:</strong> prueba tu idea con personas reales, no solo en tu cabeza.</p>
+      </article>
+      <article class="pr">
+        <span class="num">III</span>
+        <h3>Sensazione</h3>
+        <p class="es">Afinar los sentidos</p>
+        <p>Entrenar la mirada, el oído y el tacto para notar lo que otros pasan por alto.</p>
+        <p class="q">¿Qué veo, oigo y toco que antes no había notado?</p>
+        <p class="try"><strong>En tu proyecto:</strong> observa el lugar donde ocurre el problema antes de diseñar.</p>
+      </article>
+      <article class="pr">
+        <span class="num">IV</span>
+        <h3>Sfumato</h3>
+        <p class="es">Abrazar la incertidumbre</p>
+        <p>Tolerar la ambigüedad y las contradicciones sin cerrarte a una respuesta antes de tiempo.</p>
+        <p class="q">¿Qué todavía no sé, y puedo seguir avanzando así?</p>
+        <p class="try"><strong>En tu proyecto:</strong> anota tus dudas; no son fallas, son lo siguiente que hay que probar.</p>
+      </article>
+      <article class="pr">
+        <span class="num">V</span>
+        <h3>Arte / Scienza</h3>
+        <p class="es">Equilibrar arte y ciencia</p>
+        <p>Combinar lógica e imaginación, análisis y dibujo. Leonardo usaba las dos al mismo tiempo.</p>
+        <p class="q">¿Cómo lo explico con un dibujo y con un dato?</p>
+        <p class="try"><strong>En tu proyecto:</strong> haz mapas mentales que mezclen bocetos, palabras y números.</p>
+      </article>
+      <article class="pr">
+        <span class="num">VI</span>
+        <h3>Corporalità</h3>
+        <p class="es">Pensar con el cuerpo</p>
+        <p>Cuidar el cuerpo y usarlo para entender: el movimiento, la postura y la coordinación también piensan.</p>
+        <p class="q">¿Cómo se siente usar esto con mis manos y mi cuerpo?</p>
+        <p class="try"><strong>En tu proyecto:</strong> actúa la situación (bodystorming) en lugar de solo imaginarla.</p>
+      </article>
+      <article class="pr wide">
+        <span class="num">VII</span>
+        <h3>Connessione</h3>
+        <p class="es">Todo está conectado</p>
+        <p>Ver sistemas y relaciones: una idea nueva suele ser la unión de dos cosas que nadie había juntado.</p>
+        <p class="q">¿Qué pasa si conecto esto con algo que no tiene nada que ver?</p>
+        <p class="try"><strong>En tu proyecto:</strong> fuerza conexiones con palabras al azar, otros campos u otras disciplinas.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="prototipado">
+  <div class="wrap">
+    <div class="proto-top">
+      <div class="sec-head" style="margin:0">
+        <p class="eyebrow">Herramienta de diseño</p>
+        <h2>Prototipado rápido</h2>
+        <p class="lead">Un prototipo rápido es una versión barata e incompleta de tu idea, hecha en minutos, para responder una pregunta concreta con evidencia.</p>
+        <p>No se hace para presentar algo bonito. Se hace para descubrir pronto lo que no funciona, cuando cambiarlo todavía cuesta poco.</p>
+      </div>
+      <svg class="cycle" viewBox="0 0 400 400" role="img" aria-label="Ciclo del prototipado: Pregunta, Construye, Prueba, Aprende y de nuevo Pregunta">
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrow" d="M0 0L10 5L0 10z"/></marker>
+        </defs>
+        <circle class="o" cx="200" cy="200" r="130"/>
+        <path d="M262 92 A130 130 0 0 1 308 138" marker-end="url(#ah)"/>
+        <path d="M308 262 A130 130 0 0 1 262 308" marker-end="url(#ah)"/>
+        <path d="M138 308 A130 130 0 0 1 92 262" marker-end="url(#ah)"/>
+        <path d="M92 138 A130 130 0 0 1 138 92" marker-end="url(#ah)"/>
+        <circle class="node" cx="200" cy="70" r="46"/>
+        <text x="200" y="68">Pregunta</text><text class="s" x="200" y="86">¿qué quiero saber?</text>
+        <circle class="node hot" cx="330" cy="200" r="46"/>
+        <text class="hot" x="330" y="198">Construye</text><text class="s hot" x="330" y="216">en minutos</text>
+        <circle class="node" cx="200" cy="330" r="46"/>
+        <text x="200" y="328">Prueba</text><text class="s" x="200" y="346">con personas</text>
+        <circle class="node" cx="70" cy="200" r="46"/>
+        <text x="70" y="198">Aprende</text><text class="s" x="70" y="216">¿qué cambio?</text>
+        <text class="c" x="200" y="208">itera</text>
+      </svg>
+    </div>
+
+    <div class="fid" role="list">
+      <div role="listitem">
+        <span class="tag">Hoy trabajamos aquí</span>
+        <h3>Baja fidelidad</h3>
+        <div class="lvl" aria-label="Fidelidad 1 de 3"><i class="on"></i><i></i><i></i></div>
+        <ul><li>Papel, cartón, cinta, plastilina</li><li>Minutos, casi gratis</li><li>Prueba la idea y el uso básico</li></ul>
+      </div>
+      <div role="listitem">
+        <span class="tag">Después</span>
+        <h3>Media fidelidad</h3>
+        <div class="lvl" aria-label="Fidelidad 2 de 3"><i class="on"></i><i class="on"></i><i></i></div>
+        <ul><li>Wireframes, maquetas, impresión 3D simple</li><li>Horas</li><li>Prueba estructura, flujo y tamaño</li></ul>
+      </div>
+      <div role="listitem">
+        <span class="tag">Al final</span>
+        <h3>Alta fidelidad</h3>
+        <div class="lvl" aria-label="Fidelidad 3 de 3"><i class="on"></i><i class="on"></i><i class="on"></i></div>
+        <ul><li>Materiales y acabados reales, app funcional</li><li>Días o semanas</li><li>Prueba detalles, estética y producción</li></ul>
+      </div>
+    </div>
+
+    <h3 style="margin-top:3rem">Técnicas para prototipar rápido</h3>
+    <div class="techs">
+      <div class="tech"><h3>Prototipo de papel</h3><p>Pantallas, empaques u objetos dibujados y recortados. Cambias una parte con tijeras.</p></div>
+      <div class="tech"><h3>Maqueta de cartón</h3><p>Volumen y escala con cartón, cinta y lo que haya a la mano.</p></div>
+      <div class="tech"><h3>Storyboard</h3><p>La experiencia contada en 4 a 6 viñetas: antes, durante y después.</p></div>
+      <div class="tech"><h3>Bodystorming</h3><p>Actúas la situación con tu cuerpo y objetos simulados para sentir el uso.</p></div>
+      <div class="tech"><h3>Mago de Oz</h3><p>Parece que funciona solo, pero una persona lo opera a escondidas.</p></div>
+      <div class="tech"><h3>Juego de rol</h3><p>Alguien hace de usuario y otra persona de servicio para probar una interacción.</p></div>
+    </div>
+
+    <h3 style="margin-top:3rem">Reglas de taller</h3>
+    <ol class="rules">
+      <li><em>1</em><div><b>Minutos, no días.</b> <span>Si tardas más de 20 minutos, estás puliendo, no prototipando.</span></div></li>
+      <li><em>2</em><div><b>Una pregunta por prototipo.</b> <span>Decide qué quieres averiguar antes de cortar el primer papel.</span></div></li>
+      <li><em>3</em><div><b>Muéstralo antes de que esté listo.</b> <span>Lo feo se critica con más honestidad que lo bonito.</span></div></li>
+      <li><em>4</em><div><b>Observa lo que hacen, no solo lo que dicen.</b> <span>Donde la persona duda o se equivoca, ahí está tu siguiente versión.</span></div></li>
+      <li><em>5</em><div><b>No te enamores.</b> <span>El prototipo se puede tirar. Lo que aprendiste, no.</span></div></li>
+    </ol>
+  </div>
+</section>
+
+<section id="puente">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Cómo se conectan</p>
+      <h2>Cada principio tiene un momento en el prototipo</h2>
+    </div>
+    <div class="bridge">
+      <table>
+        <thead><tr><th>Principio</th><th>Momento</th><th>Qué haces</th></tr></thead>
+        <tbody>
+          <tr><td>Curiosità</td><td>Antes</td><td>Formulas la pregunta que el prototipo va a responder.</td></tr>
+          <tr><td>Sensazione</td><td>Antes</td><td>Observas a las personas y el lugar reales.</td></tr>
+          <tr><td>Arte / Scienza</td><td>Idear</td><td>Mezclas bocetos con datos para decidir qué construir.</td></tr>
+          <tr><td>Connessione</td><td>Idear</td><td>Combinas ideas lejanas para salir de lo obvio.</td></tr>
+          <tr><td>Sfumato</td><td>Durante</td><td>Construyes aunque no tengas todas las respuestas.</td></tr>
+          <tr><td>Corporalità</td><td>Durante</td><td>Usas el prototipo con tu cuerpo y tus manos.</td></tr>
+          <tr><td>Dimostrazione</td><td>Después</td><td>Lo pruebas, registras qué falló y decides la siguiente versión.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="quote-box">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M10 50 L30 14 L54 50 Z"/><circle cx="32" cy="38" r="8"/><path d="M6 56h52"/></svg>
+      <p class="big">Leonardo llenaba cuadernos de bocetos que fallaban. Hoy tú vas a llenar una hoja y construir algo que puede fallar. Esa es la idea.</p>
+    </div>
+  </div>
+</section>
+
+<section id="ejercicio">
+  <div class="wrap">
+    <div class="ex-head">
+      <div class="brief">
+        <p class="eyebrow">Ejercicio individual · ≈ 70 min</p>
+        <h2>El cuaderno de Leonardo</h2>
+        <p class="lead">Elige un problema pequeño y cotidiano, recorre los siete principios y termina con un prototipo de baja fidelidad probado con dos personas.</p>
+        <p><b>Ejemplos de problema:</b> cargar el celular en el salón, cargar material de taller en transporte público, organizar los cables del escritorio, comer rápido entre clases, encontrar un salón en el campus.</p>
+        <p class="hand">Trabajo individual: cada quien su cuaderno y su prototipo.</p>
+      </div>
+      <div class="kit">
+        <p class="eyebrow">Necesitas</p>
+        <ul>
+          <li>2 hojas (tu "cuaderno") y lápiz o plumón</li>
+          <li>Cartón, papel reciclado, cinta masking</li>
+          <li>Tijeras o cúter, clips, palitos, ligas</li>
+          <li>Tu celular solo para fotos al final</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="timer" id="timer" aria-live="polite">
+      <span class="clock" id="clock">10:00</span>
+      <span class="lbl" id="tlabel">Toca un tiempo en cada etapa para cargarlo aquí</span>
+      <button type="button" id="tStart">Iniciar</button>
+      <button type="button" class="ghost" id="tReset">Reiniciar</button>
+      <div class="bar" aria-hidden="true"><i id="tbar"></i></div>
+    </div>
+
+    <ol class="steps">
+      <li class="step">
+        <span class="n">1</span>
+        <div class="body">
+          <div class="row"><h3>Siete preguntas</h3><span class="it">Curiosità</span><button type="button" class="min" data-min="8" data-lbl="1 · Siete preguntas">⏱ 8 min</button></div>
+          <ul>
+            <li>Elige tu problema cotidiano y escríbelo en una línea arriba de la hoja.</li>
+            <li>Escribe 7 preguntas: al menos 3 que empiecen con "¿Por qué…?" y 2 con "¿Y si…?".</li>
+          </ul>
+          <p class="out"><b>Resultado:</b> problema + 7 preguntas. Encierra en un círculo la más interesante.</p>
+        </div>
+      </li>
+      <li class="step">
+        <span class="n">2</span>
+        <div class="body">
+          <div class="row"><h3>Observa con los sentidos</h3><span class="it">Sensazione</span><button type="button" class="min" data-min="8" data-lbl="2 · Observa con los sentidos">⏱ 8 min</button></div>
+          <ul>
+            <li>Dibuja el objeto o la escena del problema desde 3 vistas o momentos distintos.</li>
+            <li>Anota alrededor: qué se ve, qué se oye, qué se toca, qué molesta.</li>
+          </ul>
+          <p class="out"><b>Resultado:</b> 3 bocetos con al menos 6 notas sensoriales.</p>
+        </div>
+      </li>
+      <li class="step">
+        <span class="n">3</span>
+        <div class="body">
+          <div class="row"><h3>Mapa mitad dibujo, mitad dato</h3><span class="it">Arte / Scienza</span><button type="button" class="min" data-min="7" data-lbl="3 · Mapa arte y ciencia">⏱ 7 min</button></div>
+          <ul>
+            <li>Haz un mapa mental con tu problema al centro.</li>
+            <li>Cada rama lleva un dibujo pequeño y un dato: una medida, una cantidad, un tiempo o un costo.</li>
+          </ul>
+          <p class="out"><b>Resultado:</b> un mapa con al menos 5 ramas.</p>
+        </div>
+      </li>
+      <li class="step">
+        <span class="n">4</span>
+        <div class="body">
+          <div class="row"><h3>Conexión forzada</h3><span class="it">Connessione</span><button type="button" class="min" data-min="8" data-lbl="4 · Conexión forzada">⏱ 8 min</button></div>
+          <ul>
+            <li>Genera una palabra al azar y conéctala con tu problema de 3 formas distintas.</li>
+            <li>Convierte cada conexión en una idea de solución. Elige una.</li>
+          </ul>
+          <div class="wordbox">
+            <output id="word" aria-live="polite">murciélago</output>
+            <button type="button" class="btn" id="wordBtn">Otra palabra</button>
+          </div>
+          <p class="out"><b>Resultado:</b> 3 ideas y una elegida.</p>
+        </div>
+      </li>
+      <li class="step">
+        <span class="n">5</span>
+        <div class="body">
+          <div class="row"><h3>Lo que aún no sé</h3><span class="it">Sfumato</span><button type="button" class="min" data-min="4" data-lbl="5 · Lo que aún no sé">⏱ 4 min</button></div>
+          <ul>
+            <li>Escribe 2 dudas o contradicciones de tu idea que no puedes resolver pensando.</li>
+            <li>Redacta la pregunta que tu prototipo va a responder: "¿La gente podrá…?"</li>
+          </ul>
+          <p class="out"><b>Resultado:</b> 2 dudas + 1 pregunta de prueba.</p>
+        </div>
+      </li>
+      <li class="step build">
+        <span class="n">6</span>
+        <div class="body">
+          <div class="row"><h3>Construye y úsalo</h3><span class="it">Corporalità</span><button type="button" class="min" data-min="20" data-lbl="6 · Construye y úsalo">⏱ 20 min</button></div>
+          <ul>
+            <li>Construye un prototipo de baja fidelidad con máximo 3 materiales.</li>
+            <li>Úsalo tú primero con tu cuerpo: actúa la situación completa, de principio a fin.</li>
+            <li>Si algo no se sostiene, simúlalo (Mago de Oz) y sigue.</li>
+          </ul>
+          <p class="out"><b>Resultado:</b> un prototipo que otra persona pueda usar.</p>
+        </div>
+      </li>
+      <li class="step">
+        <span class="n">7</span>
+        <div class="body">
+          <div class="row"><h3>Pruébalo con dos personas</h3><span class="it">Dimostrazione</span><button type="button" class="min" data-min="10" data-lbl="7 · Pruébalo con dos personas">⏱ 10 min</button></div>
+          <ul>
+            <li>Dale el prototipo a 2 compañeros sin explicarlo. Solo di para qué es.</li>
+            <li>Observa en silencio: dónde dudan, qué hacen distinto a lo que esperabas.</li>
+            <li>Escribe qué funcionó, qué falló y qué cambiarías en la versión 2.</li>
+          </ul>
+          <p class="out"><b>Resultado:</b> notas de prueba + decisión para la versión 2.</p>
+        </div>
+      </li>
+    </ol>
+
+    <form class="ficha" id="ficha" autocomplete="off">
+      <div class="sec-head" style="margin:0">
+        <p class="eyebrow">Entregable</p>
+        <h2>Ficha del prototipo</h2>
+        <p>Llénala al terminar. Sube a Moodle: <b>1)</b> foto de tu hoja-cuaderno, <b>2)</b> 2 fotos del prototipo (una en uso) y <b>3)</b> esta ficha, copiada o descargada. Lo que escribes se guarda en este navegador mientras trabajas.</p>
+      </div>
+      <div class="grid2">
+        <div class="field"><label for="f_nombre">Nombre</label><input type="text" id="f_nombre" name="Nombre"></div>
+        <div class="field"><label for="f_problema">Problema elegido</label><input type="text" id="f_problema" name="Problema"></div>
+        <div class="field full"><label for="f_pregunta">Pregunta que respondió tu prototipo <span class="hint">(paso 5)</span></label><input type="text" id="f_pregunta" name="Pregunta del prototipo"></div>
+        <div class="field"><label for="f_palabra">Palabra al azar y la idea que salió <span class="hint">(paso 4)</span></label><textarea id="f_palabra" name="Conexión forzada"></textarea></div>
+        <div class="field"><label for="f_proto">Describe tu prototipo y sus materiales <span class="hint">(paso 6)</span></label><textarea id="f_proto" name="Prototipo y materiales"></textarea></div>
+        <div class="field"><label for="f_ok">Qué funcionó en la prueba</label><textarea id="f_ok" name="Qué funcionó"></textarea></div>
+        <div class="field"><label for="f_fail">Qué falló o confundió</label><textarea id="f_fail" name="Qué falló"></textarea></div>
+        <div class="field full"><label for="f_v2">Qué cambiarás en la versión 2 y por qué</label><textarea id="f_v2" name="Versión 2"></textarea></div>
+        <div class="field full"><label for="f_principio">¿Qué principio de Leonardo te costó más y cuál te sirvió más?</label><textarea id="f_principio" name="Reflexión sobre los principios"></textarea></div>
+      </div>
+      <fieldset>
+        <legend>Declaración de uso de IA</legend>
+        <p class="hint" style="font-size:.95rem">Los bocetos y el prototipo se hacen a mano. Si usaste IA para algo, decláralo aquí. Declararlo no baja puntos; ocultarlo sí.</p>
+        <div class="radios">
+          <label><input type="radio" name="IA" id="ia_no" value="No usé IA" checked> No usé IA</label>
+          <label><input type="radio" name="IA" id="ia_si" value="Sí usé IA"> Sí usé IA</label>
+        </div>
+        <div class="field"><label for="f_ia">Si usaste IA: ¿cuál, para qué y qué cambiaste tú de lo que te dio?</label><textarea id="f_ia" name="Detalle de IA"></textarea></div>
+      </fieldset>
+      <div class="actions">
+        <button type="button" class="btn" id="copyBtn">Copiar ficha</button>
+        <button type="button" class="btn alt" id="dlBtn">Descargar .txt</button>
+        <button type="button" class="btn alt" id="clearBtn">Borrar todo</button>
+        <span class="status" id="status" role="status"></span>
+      </div>
+      <textarea id="fichaOut" aria-label="Texto de la ficha para copiar" readonly></textarea>
+    </form>
+
+    <div class="rubric">
+      <table>
+        <thead><tr><th>Criterio</th><th>Lo que se busca</th><th style="text-align:right">Puntos</th></tr></thead>
+        <tbody>
+          <tr><td>Cuaderno completo</td><td>Las 7 preguntas, 3 bocetos con notas, mapa y conexiones están en la hoja.</td><td class="pts">3</td></tr>
+          <tr><td>Prototipo</td><td>Baja fidelidad, hecho en clase, otra persona lo puede usar y responde una pregunta clara.</td><td class="pts">3</td></tr>
+          <tr><td>Prueba con personas</td><td>Registra 2 pruebas con observaciones concretas: dónde dudaron y qué hicieron.</td><td class="pts">2</td></tr>
+          <tr><td>Versión 2 y reflexión</td><td>Los cambios propuestos salen de lo observado en la prueba.</td><td class="pts">1</td></tr>
+          <tr><td>Declaración de IA</td><td>Completa y honesta.</td><td class="pts">1</td></tr>
+          <tr><td>Total</td><td></td><td class="pts">10</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>MDICD Susana Cortés · Innovación y Creatividad · Universidad de Guadalajara</span>
+    <span>Principios basados en Michael J. Gelb, <i>How to Think Like Leonardo da Vinci</i> (1998)</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // Tema
+  var root=document.documentElement;
+  function store(k,v){try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k,v);}catch(e){return null}}
+  var saved=store('dv_theme'); if(saved) root.setAttribute('data-theme',saved);
+  document.getElementById('themeBtn').addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme');
+    if(!cur){cur=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
+    var next=cur==='dark'?'light':'dark'; root.setAttribute('data-theme',next); store('dv_theme',next);
+  });
+
+  // Temporizador
+  var total=600,left=600,tick=null;
+  var clock=document.getElementById('clock'),bar=document.getElementById('tbar'),lbl=document.getElementById('tlabel'),
+      tStart=document.getElementById('tStart'),timer=document.getElementById('timer');
+  function fmt(s){var m=Math.floor(s/60),r=s%60;return m+':'+(r<10?'0':'')+r}
+  function draw(){clock.textContent=fmt(left);bar.style.width=((total-left)/total*100)+'%'}
+  function stop(){clearInterval(tick);tick=null;tStart.textContent='Iniciar'}
+  function start(){
+    if(tick){stop();tStart.textContent='Continuar';return}
+    if(left<=0){left=total}
+    timer.classList.remove('done');tStart.textContent='Pausar';
+    tick=setInterval(function(){left--;draw();if(left<=0){stop();timer.classList.add('done');lbl.textContent='¡Tiempo! Pasa a la siguiente etapa.'}},1000);
+  }
+  function load(min,text){stop();total=left=min*60;timer.classList.remove('done');lbl.textContent=text;draw()}
+  tStart.addEventListener('click',start);
+  document.getElementById('tReset').addEventListener('click',function(){stop();left=total;timer.classList.remove('done');draw()});
+  document.querySelectorAll('.min').forEach(function(b){b.addEventListener('click',function(){load(+b.dataset.min,b.dataset.lbl);start()})});
+  draw();
+
+  // Palabra al azar
+  var words=['murciélago','paraguas','colmena','brújula','semilla','espejo','tortuga','acordeón','imán','marioneta','faro','raíz','globo','caracol','reloj de arena','telaraña','ancla','mochila','pulpo','cremallera','linterna','nido','resorte','piñata','camaleón','puente','abanico','hormiga','trompo','lupa','origami','termómetro','cascabel','esponja','tobogán','ventilador','pingüino','llave','cometa','mercado'];
+  var w=document.getElementById('word');
+  document.getElementById('wordBtn').addEventListener('click',function(){
+    var n; do{n=words[Math.floor(Math.random()*words.length)]}while(n===w.textContent);
+    w.textContent=n;
+    var f=document.getElementById('f_palabra'); if(f && !f.value.trim()){f.value=n+' → '; save()}
+  });
+
+  // Ficha
+  var form=document.getElementById('ficha'),out=document.getElementById('fichaOut'),status=document.getElementById('status');
+  var fields=form.querySelectorAll('input[type=text],textarea:not(#fichaOut)');
+  function save(){var d={};fields.forEach(function(f){d[f.id]=f.value});d.ia=form.querySelector('input[name=IA]:checked').id;store('dv_ficha',JSON.stringify(d))}
+  (function restore(){var raw=store('dv_ficha');if(!raw)return;try{var d=JSON.parse(raw);fields.forEach(function(f){if(d[f.id])f.value=d[f.id]});if(d.ia){var r=document.getElementById(d.ia);if(r)r.checked=true}}catch(e){}})();
+  form.addEventListener('input',save);form.addEventListener('change',save);
+  function text(){
+    var t='FICHA DEL PROTOTIPO · El cuaderno de Leonardo\nInnovación y Creatividad\n\n';
+    fields.forEach(function(f){t+=f.name.toUpperCase()+':\n'+(f.value.trim()||'—')+'\n\n'});
+    t+='USO DE IA: '+form.querySelector('input[name=IA]:checked').value+'\n';
+    return t;
+  }
+  function say(m){status.textContent=m;setTimeout(function(){if(status.textContent===m)status.textContent=''},4000)}
+  document.getElementById('copyBtn').addEventListener('click',function(){
+    var t=text();out.value=t;
+    var p=navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(t):Promise.reject();
+    p.then(function(){out.classList.remove('show');say('Ficha copiada. Pégala en tu entrega de Moodle.')})
+     .catch(function(){out.classList.add('show');out.focus();out.select();say('Selecciona el texto de abajo y cópialo.')});
+  });
+  document.getElementById('dlBtn').addEventListener('click',function(){
+    var t=text();
+    try{
+      var a=document.createElement('a');
+      var nom=(document.getElementById('f_nombre').value.trim()||'ficha').replace(/[^\wáéíóúñÁÉÍÓÚÑ-]+/g,'_');
+      a.href=URL.createObjectURL(new Blob([t],{type:'text/plain;charset=utf-8'}));
+      a.download='prototipo_'+nom+'.txt';document.body.appendChild(a);a.click();a.remove();
+      say('Si no se descargó, usa "Copiar ficha".');
+    }catch(e){say('No se pudo descargar aquí. Usa "Copiar ficha".')}
+  });
+  var clearArmed=false,clearBtn=document.getElementById('clearBtn');
+  clearBtn.addEventListener('click',function(){
+    if(!clearArmed){clearArmed=true;clearBtn.textContent='¿Seguro? Toca otra vez';setTimeout(function(){clearArmed=false;clearBtn.textContent='Borrar todo'},3500);return}
+    fields.forEach(function(f){f.value=''});document.getElementById('ia_no').checked=true;out.classList.remove('show');
+    try{localStorage.removeItem('dv_ficha')}catch(e){}
+    clearArmed=false;clearBtn.textContent='Borrar todo';say('Ficha borrada.');
+  });
+})();
+</script>
+
+</body>
+</html>
